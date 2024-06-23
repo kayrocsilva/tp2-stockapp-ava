@@ -8,6 +8,8 @@ namespace StockApp.Infra.Data.Repositories
     public class ProductRepository : IProductRepository
     {
         ApplicationDbContext _productContext;
+        private object _context;
+
         public ProductRepository(ApplicationDbContext context)
         {
             _productContext = context;
@@ -42,6 +44,25 @@ namespace StockApp.Infra.Data.Repositories
             _productContext.Update(product);
             await _productContext.SaveChangesAsync();
             return product;
+        }
+
+        public async Task BulkUpdateAsync(List<Product> products)
+        {
+            if (products == null || !products.Any())
+                throw new ArgumentException("Product list cannot be null or empty", nameof(products));
+
+            foreach (var product in products)
+            {
+                var existingProduct = await _productContext.Products.FindAsync(product.Id);
+                if (existingProduct != null)
+                {
+                    existingProduct.Name = product.Name;
+                    existingProduct.Description = product.Description;
+                    existingProduct.Price = product.Price;
+                    existingProduct.Stock = product.Stock;
+                    existingProduct.Image = product.Image;
+                }
+            }
         }
     }
 }
