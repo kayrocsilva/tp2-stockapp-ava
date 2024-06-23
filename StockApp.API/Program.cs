@@ -30,7 +30,8 @@ internal class Program
 
         //cart
 
-
+        builder.Services.AddControllers();
+       
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
