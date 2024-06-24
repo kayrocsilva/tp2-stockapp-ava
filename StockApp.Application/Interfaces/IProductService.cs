@@ -14,5 +14,6 @@ namespace StockApp.Application.Interfaces
         Task Add(ProductDTO productDto);
         Task Update(ProductDTO productDto);
         Task Remove(int? id);
+        Task<IEnumerable<ProductDTO>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice);
     }
 }
