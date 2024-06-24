@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*using Microsoft.AspNetCore.Mvc;
 using StockApp.Application.Interfaces;
 
 namespace StockApp.API.Controllers
@@ -19,4 +19,4 @@ namespace StockApp.API.Controllers
             return Ok(predictedSales);
         }
     }
-}
+}*/

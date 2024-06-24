@@ -108,5 +108,10 @@ namespace StockApp.Infra.Data.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<Product>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
