@@ -2,6 +2,7 @@
 using StockApp.Application.DTOs;
 using StockApp.Domain.Entities;
 using StockApp.Domain.Interfaces;
+using BCrypt.Net;
 
 namespace StockApp.API.Controllers
 {
@@ -29,7 +30,8 @@ namespace StockApp.API.Controllers
             var user = new User
             {
                 Username = userRegisterDTO.UserName,
-                PasswordHash = System.Text.Encoding.UTF8.GetBytes(userRegisterDTO.Password),
+                // Converter o hash da senha para um array de bytes:
+                PasswordHash = System.Text.Encoding.UTF8.GetBytes(BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password)),
                 Role = userRegisterDTO.Role
             };
 
