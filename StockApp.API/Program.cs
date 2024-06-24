@@ -7,6 +7,9 @@ using StockApp.Domain.Interfaces;
 using StockApp.Infra.Data.Repositories;
 using StockApp.Infra.IoC;
 using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 internal class Program
 {
@@ -21,10 +24,46 @@ internal class Program
 
         builder.Services.AddSingleton<ICompetitivenessAnalysisService, CompetitivenessAnalysisService>();
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+
+        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            };
+        });
+
+        builder.Services.AddEndpointsApiExplorer();
+
+        builder.Services.AddControllers();
         builder.Services.AddSingleton<IEmployeePerformanceEvaluationService, EmployeePerformanceEvaluationService>();
         builder.Services.AddSingleton<IProcessAutomationService, ProcessAutomationService>();
         builder.Services.AddSingleton<IProductionPlanningService, ProductionPlanningService>();
         builder.Services.AddSingleton<IProjectManagementService, ProjectManagementService>();
+
+        // Configura��o dos servi�os
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton<ICustomerRelationshipManagementService, CustomerRelationshipManagementService>();
+
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton<IFinancialManagementService, FinancialManagementService>();
+
+        // Configura??o dos servi?os
+        builder.Services.AddControllers();
         builder.Services.AddSingleton<ICustomReportService, CustomReportService>();
         builder.Services.AddScoped<IFeedbackService, FeedbackService>();
         builder.Services.AddScoped<ISentimentAnalysisService, SentimentAnalysisService>(); // Substitua pelo seu serviço real de análise de sentimento
@@ -49,6 +88,9 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.UseRouting();
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

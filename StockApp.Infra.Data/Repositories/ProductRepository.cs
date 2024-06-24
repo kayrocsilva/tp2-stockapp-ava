@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace StockApp.Infra.Data.Repositories
 {
     public class ProductRepository : IProductRepository

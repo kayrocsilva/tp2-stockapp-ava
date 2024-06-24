@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StockApp.Application.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace StockApp.Application.Interfaces
 {
-    public interface ISalesPredictionService
+    public interface IFinancialManagementService
     {
-        double PredictSales(int productId, int month, int year);
+        Task<FinancialReportDTO> GenerateReportAsync();
     }
 }
