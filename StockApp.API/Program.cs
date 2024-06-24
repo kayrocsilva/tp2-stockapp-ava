@@ -1,8 +1,12 @@
-﻿using StockApp.Application.Interfaces;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using StockApp.Application.Interfaces;
 using StockApp.Application.Services;
 using StockApp.Domain.Interfaces;
 using StockApp.Infra.Data.Repositories;
 using StockApp.Infra.IoC;
+using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -20,6 +24,7 @@ internal class Program
 
         builder.Services.AddSingleton<ICompetitivenessAnalysisService, CompetitivenessAnalysisService>();
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 
         var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
         builder.Services.AddAuthentication(options =>
@@ -46,14 +51,8 @@ internal class Program
 
         builder.Services.AddControllers();
         builder.Services.AddSingleton<IEmployeePerformanceEvaluationService, EmployeePerformanceEvaluationService>();
-
-        builder.Services.AddControllers();
         builder.Services.AddSingleton<IProcessAutomationService, ProcessAutomationService>();
-
-        builder.Services.AddControllers();
         builder.Services.AddSingleton<IProductionPlanningService, ProductionPlanningService>();
-
-        builder.Services.AddControllers();
         builder.Services.AddSingleton<IProjectManagementService, ProjectManagementService>();
 
         // Configura��o dos servi�os
@@ -66,22 +65,19 @@ internal class Program
         // Configura??o dos servi?os
         builder.Services.AddControllers();
         builder.Services.AddSingleton<ICustomReportService, CustomReportService>();
-
         builder.Services.AddScoped<IFeedbackService, FeedbackService>();
         builder.Services.AddScoped<ISentimentAnalysisService, SentimentAnalysisService>(); // Substitua pelo seu serviço real de análise de sentimento
 
+        // Configuração do HttpClient para o serviço de preços
+        builder.Services.AddHttpClient<IPricingService, PricingService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.pricing.com/");
+        });
 
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
-
-        builder.Services.AddControllers();
-
-
-        builder.Services.AddControllers();
-        
-
-
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -92,33 +88,15 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
+
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
 
-        app.Run();
-
-        // Endpoint padr�o
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapGet("/", async context =>
-            {
-                await context.Response.WriteAsync("StockApp API is running");
-            });
-        });
-
-
-
-        // Configuração dos serviços
-
-        app.UseRouting();
+        // Endpoint padrão
        
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
 
         app.Run();
     }

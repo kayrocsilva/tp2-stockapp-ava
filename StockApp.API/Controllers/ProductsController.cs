@@ -1,33 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using StockApp.Application.Interfaces;
 using StockApp.Domain.Entities;
 using StockApp.Domain.Interfaces;
 
-namespace StockApp.API.Controllers
+namespace StockApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
+        private readonly IPricingService _pricingService;
 
-        public ProductsController(IProductRepository productRepository)
+        public ProductsController(IProductRepository productRepository, IPricingService pricingService)
         {
             _productRepository = productRepository;
+            _pricingService = pricingService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            var products = await _productRepository.GetProducts();
+            var products = await _productRepository.GetAllAsync();
             return Ok(products);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetById(int? id)
+        public async Task<ActionResult<Product>> GetById(int id)
         {
-            var product = await _productRepository.GetById(id);
+            var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
             {
                 return NotFound();
@@ -35,12 +38,11 @@ namespace StockApp.API.Controllers
             return Ok(product);
         }
 
-        // Novo endpoint para filtragem avançada
-        [HttpGet("filtered")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetFiltered([FromQuery] string name, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice)
+        [HttpGet("price/{productId}")]
+        public async Task<ActionResult<decimal>> GetProductPrice(string productId)
         {
-            var products = await _productRepository.GetFilteredAsync(name, minPrice, maxPrice);
-            return Ok(products);
+            var price = await _pricingService.GetProductPriceAsync(productId);
+            return Ok(price);
         }
     }
 }
