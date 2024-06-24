@@ -2,12 +2,16 @@
 using StockApp.Domain.Interfaces;
 using StockApp.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace StockApp.Infra.Data.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        ApplicationDbContext _productContext;
+        private readonly ApplicationDbContext _productContext;
+
         public ProductRepository(ApplicationDbContext context)
         {
             _productContext = context;
@@ -43,6 +47,7 @@ namespace StockApp.Infra.Data.Repositories
             await _productContext.SaveChangesAsync();
             return product;
         }
+
         public async Task BulkUpdateAsync(List<Product> products)
         {
             if (products == null || !products.Any())
@@ -60,18 +65,23 @@ namespace StockApp.Infra.Data.Repositories
                     existingProduct.Image = product.Image;
                 }
             }
+
+            await _productContext.SaveChangesAsync(); // Save changes after all updates
         }
+
         public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids)
         {
             return await _productContext.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
         }
+
         public async Task<IEnumerable<Product>> GetAll(int pageNumber, int pageSize)
         {
             return await _productContext.Products
-                .Skip(pageNumber).Take(pageSize)
+                .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
         }
+
         public async Task<IEnumerable<Product>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice)
         {
             var query = _productContext.Products.AsQueryable();
@@ -92,6 +102,11 @@ namespace StockApp.Infra.Data.Repositories
             }
 
             return await query.ToListAsync();
+        }
+
+        public Task<Product> GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

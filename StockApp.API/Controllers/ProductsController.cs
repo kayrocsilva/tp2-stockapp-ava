@@ -1,133 +1,112 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using StockApp.Application.DTOs;
-using StockApp.Application.Interfaces;
-using StockApp.Domain.Entities;
+﻿using StockApp.Domain.Entities;
 using StockApp.Domain.Interfaces;
+using StockApp.Infra.Data.Context;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace StockApp.API.Controllers
+namespace StockApp.Infra.Data.Repositories
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductRepository : IProductRepository
     {
-        private readonly IProductService _productService;
-        private readonly IProductRepository _productRepository;
-        private readonly IReviewRepository _reviewRepository;
+        private readonly ApplicationDbContext _productContext;
 
-        public ProductsController(IProductService productService)
+        public ProductRepository(ApplicationDbContext context)
         {
-            _productService = productService;
+            _productContext = context;
         }
 
-        // GET: api/products
-        [HttpGet(Name = "GetProducts")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
+        public async Task<Product> Create(Product product)
         {
-            var products = await _productService.GetProducts();
-            if (products == null)
+            _productContext.Add(product);
+            await _productContext.SaveChangesAsync();
+            return product;
+        }
+
+        public async Task<Product> GetById(int? id)
+        {
+            return await _productContext.Products.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<Product>> GetProducts()
+        {
+            return await _productContext.Products.ToListAsync();
+        }
+
+        public async Task<Product> Remove(Product product)
+        {
+            _productContext.Remove(product);
+            await _productContext.SaveChangesAsync();
+            return product;
+        }
+
+        public async Task<Product> Update(Product product)
+        {
+            _productContext.Update(product);
+            await _productContext.SaveChangesAsync();
+            return product;
+        }
+
+        public async Task BulkUpdateAsync(List<Product> products)
+        {
+            if (products == null || !products.Any())
+                throw new ArgumentException("Product list cannot be null or empty", nameof(products));
+
+            foreach (var product in products)
             {
-                return NotFound("Products not found");
-            }
-            return Ok(products);
-        }
-
-        // GET: api/products/5
-        [HttpGet("{id:int}", Name = "GetProduct")]
-        public async Task<ActionResult<ProductDTO>> Get(int id)
-        {
-            var product = await _productService.GetProductById(id);
-            if (product == null)
-            {
-                return NotFound("Product not found");
-            }
-            return Ok(product);
-        }
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] ProductDTO product)
-        {
-            if (product == null)
-            {
-                return BadRequest("Product is null");
-            }
-
-            await _productService.Add(product);
-
-            return CreatedAtRoute("GetProduct", new { id = product.Id }, product);
-        }
-        [HttpPut("{id}", Name = "UpdateProduct")]
-        public async Task<ActionResult> Put(int id, [FromBody] ProductDTO product)
-        {
-            if (id != product.Id)
-            {
-                return BadRequest("Inconsistent Id");
-            }
-            if (product == null)
-            {
-                return BadRequest("Update Data Invalid");
-            }
-
-            await _productService.Update(product);
-
-            return Ok(product);
-        }
-        [HttpPut("bulk-update")]
-        public async Task<IActionResult> BulkUpdate([FromBody] List<Product> products)
-        {
-            await _productRepository.BulkUpdateAsync(products);
-            return NoContent();
-        }
-        [HttpPost("compare")]
-        public async Task<ActionResult<IEnumerable<Product>>> CompareProducts([FromBody] List<int> productIds)
-        {
-            var products = await _productRepository.GetByIdsAsync(productIds);
-            return Ok(products);
-        }
-        [HttpPost("{productId}/review")]
-        public async Task<IActionResult> AddReview(int productId, [FromBody] Review review)
-        {
-            review.ProductId = productId;
-            review.Date = DateTime.Now;
-
-            await _reviewRepository.AddAsync(review);
-            return Ok();
-        }
-        private async Task NotifyExternalSystems(string eventData)
-        {
-
-        }
-
-        [HttpPost("webhook")]
-        public async Task<IActionResult> Webhook([FromBody] WebhookDTO webhookDTO)
-        {
-            if (webhookDTO.EventType == "ProductCreated")
-            {
-                await NotifyExternalSystems(webhookDTO.EventData);
-            }
-            else if (webhookDTO.EventType == "CategoryUpdated")
-            {
-                await NotifyExternalSystems(webhookDTO.EventData);
+                var existingProduct = await _productContext.Products.FindAsync(product.Id);
+                if (existingProduct != null)
+                {
+                    existingProduct.Name = product.Name;
+                    existingProduct.Description = product.Description;
+                    existingProduct.Price = product.Price;
+                    existingProduct.Stock = product.Stock;
+                    existingProduct.Image = product.Image;
+                }
             }
 
-            return Ok();
-        }
-        [HttpGet("pages", Name = "GetAllPages")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            var products = await _productRepository.GetAll(pageNumber, pageSize);
-            return Ok(products);
-        }
-        [HttpGet("filter", Name = "FilterProducts")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice)
-        {
-            var products = await _productService.GetFilteredAsync(name, minPrice, maxPrice);
-            if (products == null)
-            {
-                return NotFound("Products not found");
-            }
-            return Ok(products);
+            await _productContext.SaveChangesAsync(); 
         }
 
+        public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _productContext.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetAll(int pageNumber, int pageSize)
+        {
+            return await _productContext.Products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice)
+        {
+            var query = _productContext.Products.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(p => p.Name.Contains(name));
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public Task<Product> GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
