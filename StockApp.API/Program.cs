@@ -30,6 +30,9 @@ internal class Program
         builder.Services.AddSingleton<ICompetitivenessAnalysisService, CompetitivenessAnalysisService>();
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+        // Registro do serviço de detecção de fraudes
+        builder.Services.AddSingleton<IFraudDetectionService, FraudDetectionService>();
+
         builder.Services.AddStackExchangeRedisCache(Options =>
         {
             Options.Configuration = builder.Configuration.GetConnectionString("Redis");
