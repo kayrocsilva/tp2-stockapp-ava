@@ -34,6 +34,10 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddSingleton<IProjectManagementService, ProjectManagementService>();
 
+        // Configura��o dos servi�os
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton<ICustomerRelationshipManagementService, CustomerRelationshipManagementService>();
+
         // Configura??o dos servi?os
         builder.Services.AddControllers();
         builder.Services.AddSingleton<ICustomReportService, CustomReportService>();
