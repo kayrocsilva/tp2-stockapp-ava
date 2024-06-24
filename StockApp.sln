@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockApp.Database", "StockA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "myMLApp", "myMLApp\myMLApp.csproj", "{2AEA1781-08D2-4E7D-B376-8F5A71B95D07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.Test", "StockApp.Test\StockApp.Test.csproj", "{328FDBD9-FADD-4A16-A335-4E0F4F346ADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockApp.Test", "StockApp.Test\StockApp.Test.csproj", "{328FDBD9-FADD-4A16-A335-4E0F4F346ADE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApp.IntegrationTests", "IntegrationTests\StockApp.IntegrationTests.csproj", "{74E7AFB7-5183-481E-BD27-ECBCDF6DE266}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{328FDBD9-FADD-4A16-A335-4E0F4F346ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{328FDBD9-FADD-4A16-A335-4E0F4F346ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{328FDBD9-FADD-4A16-A335-4E0F4F346ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74E7AFB7-5183-481E-BD27-ECBCDF6DE266}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74E7AFB7-5183-481E-BD27-ECBCDF6DE266}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74E7AFB7-5183-481E-BD27-ECBCDF6DE266}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74E7AFB7-5183-481E-BD27-ECBCDF6DE266}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
