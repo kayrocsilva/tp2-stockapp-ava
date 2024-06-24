@@ -1,112 +1,46 @@
-﻿using StockApp.Domain.Entities;
-using StockApp.Domain.Interfaces;
-using StockApp.Infra.Data.Context;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using StockApp.Domain.Entities;
+using StockApp.Domain.Interfaces;
 
-namespace StockApp.Infra.Data.Repositories
+namespace StockApp.API.Controllers
 {
-    public class ProductRepository : IProductRepository
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductsController : ControllerBase
     {
-        private readonly ApplicationDbContext _productContext;
+        private readonly IProductRepository _productRepository;
 
-        public ProductRepository(ApplicationDbContext context)
+        public ProductsController(IProductRepository productRepository)
         {
-            _productContext = context;
+            _productRepository = productRepository;
         }
 
-        public async Task<Product> Create(Product product)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            _productContext.Add(product);
-            await _productContext.SaveChangesAsync();
-            return product;
+            var products = await _productRepository.GetProducts();
+            return Ok(products);
         }
 
-        public async Task<Product> GetById(int? id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetById(int? id)
         {
-            return await _productContext.Products.FindAsync(id);
-        }
-
-        public async Task<IEnumerable<Product>> GetProducts()
-        {
-            return await _productContext.Products.ToListAsync();
-        }
-
-        public async Task<Product> Remove(Product product)
-        {
-            _productContext.Remove(product);
-            await _productContext.SaveChangesAsync();
-            return product;
-        }
-
-        public async Task<Product> Update(Product product)
-        {
-            _productContext.Update(product);
-            await _productContext.SaveChangesAsync();
-            return product;
-        }
-
-        public async Task BulkUpdateAsync(List<Product> products)
-        {
-            if (products == null || !products.Any())
-                throw new ArgumentException("Product list cannot be null or empty", nameof(products));
-
-            foreach (var product in products)
+            var product = await _productRepository.GetById(id);
+            if (product == null)
             {
-                var existingProduct = await _productContext.Products.FindAsync(product.Id);
-                if (existingProduct != null)
-                {
-                    existingProduct.Name = product.Name;
-                    existingProduct.Description = product.Description;
-                    existingProduct.Price = product.Price;
-                    existingProduct.Stock = product.Stock;
-                    existingProduct.Image = product.Image;
-                }
+                return NotFound();
             }
-
-            await _productContext.SaveChangesAsync(); 
+            return Ok(product);
         }
 
-        public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids)
+        // Novo endpoint para filtragem avançada
+        [HttpGet("filtered")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetFiltered([FromQuery] string name, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice)
         {
-            return await _productContext.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
-        }
-
-        public async Task<IEnumerable<Product>> GetAll(int pageNumber, int pageSize)
-        {
-            return await _productContext.Products
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Product>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice)
-        {
-            var query = _productContext.Products.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                query = query.Where(p => p.Name.Contains(name));
-            }
-
-            if (minPrice.HasValue)
-            {
-                query = query.Where(p => p.Price >= minPrice.Value);
-            }
-
-            if (maxPrice.HasValue)
-            {
-                query = query.Where(p => p.Price <= maxPrice.Value);
-            }
-
-            return await query.ToListAsync();
-        }
-
-        public Task<Product> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
+            var products = await _productRepository.GetFilteredAsync(name, minPrice, maxPrice);
+            return Ok(products);
         }
     }
 }
