@@ -55,9 +55,9 @@ internal class Program
         app.Run();
 
 
-
+        
         // Configuração dos serviços
-       
+
         app.UseRouting();
        
         app.UseEndpoints(endpoints =>
