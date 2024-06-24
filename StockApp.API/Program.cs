@@ -60,6 +60,9 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddSingleton<ICustomerRelationshipManagementService, CustomerRelationshipManagementService>();
 
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton<IFinancialManagementService, FinancialManagementService>();
+
         // Configura??o dos servi?os
         builder.Services.AddControllers();
         builder.Services.AddSingleton<ICustomReportService, CustomReportService>();
