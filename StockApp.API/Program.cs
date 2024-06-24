@@ -32,6 +32,12 @@ internal class Program
 
         // Registro do serviço de detecção de fraudes
         builder.Services.AddSingleton<IFraudDetectionService, FraudDetectionService>();
+        // Registro do serviço de análise de dados
+        builder.Services.AddHttpClient<IDataAnalysisService, DataAnalysisService>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.dataanalysis.com/");
+            // Configurações adicionais do HttpClient, se necessário
+        });
 
         builder.Services.AddStackExchangeRedisCache(Options =>
         {
