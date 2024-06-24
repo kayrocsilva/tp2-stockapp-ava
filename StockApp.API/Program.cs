@@ -44,7 +44,16 @@ internal class Program
 
         builder.Host.UseSerilog();
 
-
+        builder.Services.AddControllers();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
 
 
         var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
@@ -166,6 +175,8 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.UseCors("AllowAll");
 
         app.UseRouting();
         app.UseAuthentication();
