@@ -1,4 +1,4 @@
-using StockApp.Application.Interfaces;
+﻿using StockApp.Application.Interfaces;
 using StockApp.Application.Services;
 using StockApp.Domain.Interfaces;
 using StockApp.Infra.Data.Repositories;
@@ -34,11 +34,25 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddSingleton<IProjectManagementService, ProjectManagementService>();
 
+        // Configura??o dos servi?os
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton<ICustomReportService, CustomReportService>();
+
+        builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+        builder.Services.AddScoped<ISentimentAnalysisService, SentimentAnalysisService>(); // Substitua pelo seu serviço real de análise de sentimento
+
+
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
 
         builder.Services.AddControllers();
+
+
+        builder.Services.AddControllers();
+        
+
+
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -56,9 +70,18 @@ internal class Program
 
         app.Run();
 
+        // Endpoint padr�o
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapGet("/", async context =>
+            {
+                await context.Response.WriteAsync("StockApp API is running");
+            });
+        });
 
-        
-        // Configura��o dos servi�os
+
+
+        // Configuração dos serviços
 
         app.UseRouting();
        
