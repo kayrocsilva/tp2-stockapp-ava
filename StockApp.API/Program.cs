@@ -26,6 +26,9 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddSingleton<IProcessAutomationService, ProcessAutomationService>();
 
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton<IProductionPlanningService, ProductionPlanningService>();
+
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
