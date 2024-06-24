@@ -13,11 +13,23 @@ namespace StockApp.Api.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly IPricingService _pricingService;
+        private readonly IDiscountService _discountService;
 
         public ProductsController(IProductRepository productRepository, IPricingService pricingService)
         {
             _productRepository = productRepository;
             _pricingService = pricingService;
+        }
+        public ProductsController(IDiscountService discountService)
+        {
+            _discountService = discountService;
+        }
+
+        [HttpGet("calculate-discount")]
+        public IActionResult CalculateDiscount(decimal price, decimal discountPercentage)
+        {
+            var discountedPrice = _discountService.ApplyDiscount(price, discountPercentage);
+            return Ok(new { DiscountedPrice = discountedPrice });
         }
 
         [HttpGet]
