@@ -22,8 +22,7 @@ namespace StockApp.Domain.Interfaces
         Task BulkUpdateAsync(List<Product> products);
         Task<IEnumerable<Product>> GetAll(int pageNumber, int pageSize);
         Task<IEnumerable<Product>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice);
-
-
-
+        Task<IEnumerable<object>> GetLowStockAsync(int threshold);
+        Task UpdateAsync(object product);
     }
 }
