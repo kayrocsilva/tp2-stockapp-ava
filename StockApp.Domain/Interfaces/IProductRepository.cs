@@ -15,10 +15,15 @@ namespace StockApp.Domain.Interfaces
         Task<Product> Create(Product product);
         Task<Product> Update(Product product);
         Task<Product> Remove(Product product);
+        Task<Product> GetByIdAsync(int id);
+        Task<IEnumerable<Product>> GetAllAsync();
 
         Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids);
         Task BulkUpdateAsync(List<Product> products);
         Task<IEnumerable<Product>> GetAll(int pageNumber, int pageSize);
         Task<IEnumerable<Product>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice);
+
+
+
     }
 }

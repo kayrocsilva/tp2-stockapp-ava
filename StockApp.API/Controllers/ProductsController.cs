@@ -1,133 +1,46 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StockApp.Application.DTOs;
-using StockApp.Application.Interfaces;
-using StockApp.Domain.Entities;
-using StockApp.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using StockApp.Domain.Entities;
+using StockApp.Domain.Interfaces;
 
 namespace StockApp.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductService _productService;
         private readonly IProductRepository _productRepository;
-        private readonly IReviewRepository _reviewRepository;
 
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductRepository productRepository)
         {
-            _productService = productService;
+            _productRepository = productRepository;
         }
 
-        // GET: api/products
-        [HttpGet(Name = "GetProducts")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            var products = await _productService.GetProducts();
-            if (products == null)
-            {
-                return NotFound("Products not found");
-            }
+            var products = await _productRepository.GetProducts();
             return Ok(products);
         }
 
-        // GET: api/products/5
-        [HttpGet("{id:int}", Name = "GetProduct")]
-        public async Task<ActionResult<ProductDTO>> Get(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetById(int? id)
         {
-            var product = await _productService.GetProductById(id);
+            var product = await _productRepository.GetById(id);
             if (product == null)
             {
-                return NotFound("Product not found");
+                return NotFound();
             }
             return Ok(product);
         }
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] ProductDTO product)
-        {
-            if (product == null)
-            {
-                return BadRequest("Product is null");
-            }
 
-            await _productService.Add(product);
-
-            return CreatedAtRoute("GetProduct", new { id = product.Id }, product);
-        }
-        [HttpPut("{id}", Name = "UpdateProduct")]
-        public async Task<ActionResult> Put(int id, [FromBody] ProductDTO product)
+        // Novo endpoint para filtragem avançada
+        [HttpGet("filtered")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetFiltered([FromQuery] string name, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice)
         {
-            if (id != product.Id)
-            {
-                return BadRequest("Inconsistent Id");
-            }
-            if (product == null)
-            {
-                return BadRequest("Update Data Invalid");
-            }
-
-            await _productService.Update(product);
-
-            return Ok(product);
-        }
-        [HttpPut("bulk-update")]
-        public async Task<IActionResult> BulkUpdate([FromBody] List<Product> products)
-        {
-            await _productRepository.BulkUpdateAsync(products);
-            return NoContent();
-        }
-        [HttpPost("compare")]
-        public async Task<ActionResult<IEnumerable<Product>>> CompareProducts([FromBody] List<int> productIds)
-        {
-            var products = await _productRepository.GetByIdsAsync(productIds);
+            var products = await _productRepository.GetFilteredAsync(name, minPrice, maxPrice);
             return Ok(products);
         }
-        [HttpPost("{productId}/review")]
-        public async Task<IActionResult> AddReview(int productId, [FromBody] Review review)
-        {
-            review.ProductId = productId;
-            review.Date = DateTime.Now;
-
-            await _reviewRepository.AddAsync(review);
-            return Ok();
-        }
-        private async Task NotifyExternalSystems(string eventData)
-        {
-
-        }
-
-        [HttpPost("webhook")]
-        public async Task<IActionResult> Webhook([FromBody] WebhookDTO webhookDTO)
-        {
-            if (webhookDTO.EventType == "ProductCreated")
-            {
-                await NotifyExternalSystems(webhookDTO.EventData);
-            }
-            else if (webhookDTO.EventType == "CategoryUpdated")
-            {
-                await NotifyExternalSystems(webhookDTO.EventData);
-            }
-
-            return Ok();
-        }
-        [HttpGet("pages", Name = "GetAllPages")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            var products = await _productRepository.GetAll(pageNumber, pageSize);
-            return Ok(products);
-        }
-        [HttpGet("filter", Name = "FilterProducts")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice)
-        {
-            var products = await _productService.GetFilteredAsync(name, minPrice, maxPrice);
-            if (products == null)
-            {
-                return NotFound("Products not found");
-            }
-            return Ok(products);
-        }
-
     }
 }
