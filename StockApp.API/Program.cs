@@ -18,6 +18,8 @@ internal class Program
         builder.Services.AddSingleton<ICompetitivenessAnalysisService, CompetitivenessAnalysisService>();
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+       
+
         builder.Services.AddEndpointsApiExplorer();
 
         builder.Services.AddControllers();
