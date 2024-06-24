@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Serilog;
+using Serilog.Events;
 
 internal class Program
 {
@@ -31,6 +33,18 @@ internal class Program
         {
             Options.Configuration = builder.Configuration.GetConnectionString("Redis");
         });
+
+        Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs\\log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+        builder.Host.UseSerilog();
+
+
 
 
         var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
