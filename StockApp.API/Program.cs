@@ -39,6 +39,9 @@ internal class Program
             // Configurações adicionais do HttpClient, se necessário
         });
 
+        // Registro do serviço de análise de desempenho de vendas
+        builder.Services.AddSingleton<ISalesPerformanceAnalysisService, SalesPerformanceAnalysisService>();
+
         builder.Services.AddStackExchangeRedisCache(Options =>
         {
             Options.Configuration = builder.Configuration.GetConnectionString("Redis");
