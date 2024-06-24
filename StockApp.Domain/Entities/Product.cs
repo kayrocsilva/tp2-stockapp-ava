@@ -34,6 +34,7 @@ namespace StockApp.Domain.Entities
 
 
         public Category Category { get; set; }
+        public object StockQuantity { get; set; }
 
         private void ValidateDomain(string name, string description, decimal price, int stock, string image)
         {
