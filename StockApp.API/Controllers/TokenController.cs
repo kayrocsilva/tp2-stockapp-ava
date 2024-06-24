@@ -17,12 +17,19 @@ namespace StockApp.API.Controllers
         private readonly Domain.Account.IAuthenticate _authentication;
         private readonly IConfiguration _configuration;
 
+        public TokenController(StockApp.API.Controllers.IAuthService @object)
+        {
+            Object = @object;
+        }
+
         public TokenController(Domain.Account.IAuthenticate authentication, IConfiguration configuration)
         {
             _authentication = authentication ??
                 throw new ArgumentNullException(nameof(authentication));
             _configuration = configuration;
         }
+
+        public StockApp.API.Controllers.IAuthService Object { get; }
 
         [HttpPost("CreateUser")]
         [ApiExplorerSettings(IgnoreApi = true)]
