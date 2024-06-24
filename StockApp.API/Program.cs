@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Serilog;
 using Serilog.Events;
+using StockApp.API.Hubs;
 
 internal class Program
 {
@@ -150,10 +151,11 @@ internal class Program
             c.AddSecurityRequirement(securityRequirement);
         });
 
+        builder.Services.AddSignalR();
+
         var app = builder.Build();
 
-        // Configurar o Swagger
-       
+        app.MapHub<StockHub>("/stockhub");
 
         // Configurar o ambiente de desenvolvimento
         if (app.Environment.IsDevelopment())
