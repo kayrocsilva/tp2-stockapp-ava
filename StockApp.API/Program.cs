@@ -39,10 +39,10 @@ internal class Program
         var app = builder.Build();
 
 
-
-
-      
+        builder.Services.AddControllers();
         
+
+
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
