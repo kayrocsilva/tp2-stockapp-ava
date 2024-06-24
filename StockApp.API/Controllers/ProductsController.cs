@@ -56,5 +56,33 @@ namespace StockApp.Api.Controllers
             var price = await _pricingService.GetProductPriceAsync(productId);
             return Ok(price);
         }
+
+        [HttpPost("{id}/upload-image")]
+        public async Task<IActionResult> UploadImage(int id, IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                return BadRequest("Invalid image.");
+            }
+
+            // Verifica se o diretório existe, senão cria
+            var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Caminho completo do arquivo
+            var filePath = Path.Combine(directory, $"{id}_{DateTime.Now.Ticks}.jpg");
+
+            // Salva a imagem no disco
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            // Retorna uma resposta de sucesso
+            return Ok(new { imagePath = filePath });
+        }
     }
 }
