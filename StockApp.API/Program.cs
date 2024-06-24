@@ -1,4 +1,4 @@
-using StockApp.Application.Interfaces;
+ï»¿using StockApp.Application.Interfaces;
 using StockApp.Application.Services;
 using StockApp.Domain.Interfaces;
 using StockApp.Infra.Data.Repositories;
@@ -63,9 +63,18 @@ internal class Program
 
         app.Run();
 
+        // Endpoint padrï¿½o
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapGet("/", async context =>
+            {
+                await context.Response.WriteAsync("StockApp API is running");
+            });
+        });
 
-        
-        // Configuração dos serviços
+
+
+        // ConfiguraÃ§Ã£o dos serviÃ§os
 
         app.UseRouting();
        
