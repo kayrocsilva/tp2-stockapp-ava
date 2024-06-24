@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 internal class Program
 {
@@ -25,6 +26,11 @@ internal class Program
 
         builder.Services.AddSingleton<ICompetitivenessAnalysisService, CompetitivenessAnalysisService>();
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+        builder.Services.AddStackExchangeRedisCache(Options =>
+        {
+            Options.Configuration = builder.Configuration.GetConnectionString("Redis");
+        });
 
 
         var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
