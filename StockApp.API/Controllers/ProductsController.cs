@@ -118,6 +118,16 @@ namespace StockApp.API.Controllers
             var products = await _productRepository.GetAll(pageNumber, pageSize);
             return Ok(products);
         }
+        [HttpGet("filter", Name = "FilterProducts")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetFilteredAsync(string name, decimal? minPrice, decimal? maxPrice)
+        {
+            var products = await _productService.GetFilteredAsync(name, minPrice, maxPrice);
+            if (products == null)
+            {
+                return NotFound("Products not found");
+            }
+            return Ok(products);
+        }
 
     }
 }
