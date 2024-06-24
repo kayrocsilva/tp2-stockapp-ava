@@ -10,6 +10,7 @@ using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.OpenApi.Models;
 
 internal class Program
 {
@@ -55,6 +56,10 @@ internal class Program
         builder.Services.AddSingleton<IProductionPlanningService, ProductionPlanningService>();
         builder.Services.AddSingleton<IProjectManagementService, ProjectManagementService>();
 
+        // Configurar servi�os
+        builder.Services.AddSingleton<IDiscountService, DiscountService>();
+        builder.Services.AddControllers();
+
         // Configura��o dos servi�os
         builder.Services.AddControllers();
         builder.Services.AddSingleton<ICustomerRelationshipManagementService, CustomerRelationshipManagementService>();
@@ -78,6 +83,20 @@ internal class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
+
+        // Configurar o Swagger
+       
+
+        // Configurar o ambiente de desenvolvimento
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "StockApp API v1");
+            });
+        }
+
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
